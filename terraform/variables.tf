@@ -2,6 +2,10 @@ variable "argocd_namespace" {
   default = "argocd"
 }
 
+variable "mailhog_namespace" {
+  default = "mailhog"
+}
+
 variable "argocd_version" {
   default = "5.51.6"
 }

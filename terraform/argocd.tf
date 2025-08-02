@@ -5,6 +5,8 @@ resource "helm_release" "argocd" {
   namespace  = var.argocd_namespace
   version    = var.argocd_version
 
+  # Wait for all Argo CD resources (including CRDs) to be ready
+  wait       = true
   values = [
     <<EOF
 server:
@@ -14,18 +16,12 @@ EOF
   ]
 }
 
-# Template the ArgoCD application YAML
-data "template_file" "mailhog_app" {
-  template = file("${path.module}/templates/mailhog-app.yaml.tpl")
-  vars = {
-    github_username = var.github_username
-  }
-}
 
-# Apply the ArgoCD application
+# Apply MailHog via Kubernetes provider (removes null_resource)
 resource "kubernetes_manifest" "mailhog_app" {
-  manifest = yamldecode(data.template_file.mailhog_app.rendered)
-  
+  manifest = yamldecode(templatefile("${path.module}/templates/mailhog-app.yaml.tpl", {
+    github_username = var.github_username
+  }))
   depends_on = [
     helm_release.argocd,
     kubernetes_namespace.argocd
