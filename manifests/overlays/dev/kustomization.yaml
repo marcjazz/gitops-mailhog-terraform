@@ -1,3 +1,4 @@
+namespace: mailhog
 resources:
   - ../../base
 namePrefix: dev-
